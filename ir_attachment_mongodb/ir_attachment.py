@@ -4,20 +4,28 @@ from osv import osv, fields
 from mongodb_backend import fields as mongodb_fields
 
 
+def mongoize(vals):
+    vals['datas_mongo'] = vals['datas']
+    vals['datas'] = False
+
+
+def unmongoize(vals):
+    vals['datas'] = vals['datas_mongo']
+    del vals['datas_mongo']
+
+
 class IrAttachment(osv.osv):
     _name = 'ir.attachment'
     _inherit = 'ir.attachment'
 
     def create(self, cursor, uid, vals, context=None):
         if 'datas' in vals and vals['datas']:
-            vals['datas_mongo'] = vals['datas']
-            vals['datas'] = False
+            mongoize(vals)
         return super(IrAttachment, self).create(cursor, uid, vals, context)
 
     def write(self, cursor, uid, ids, vals, context=None):
         if 'datas' in vals:
-            vals['datas_mongo'] = vals['datas']
-            del vals['datas']
+            mongoize(vals)
         return super(IrAttachment, self).write(cursor, uid, ids, vals, context)
 
     def read(self, cursor, uid, ids, fields=None, context=None,
@@ -29,14 +37,12 @@ class IrAttachment(osv.osv):
         if isinstance(ids, (list, tuple)):
             if 'datas' in res[0]:
                 for attach in res:
-                    attach['datas'] = attach['datas_mongo']
-                    del attach['datas_mongo']
+                    if attach['datas_mongo']:
+                        unmongoize(attach)
         else:
-            if 'datas' in res:
-                res['datas'] = res['datas_mongo']
-                del res['datas_mongo']
+            if 'datas' in res and res['datas_mongo']:
+                unmongoize(res)
         return res
-
 
     _columns = {
         'datas_mongo': mongodb_fields.gridfs('Mongo Id')
