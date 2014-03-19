@@ -44,6 +44,11 @@ class IrAttachment(osv.osv):
                 unmongoize(res)
         return res
 
+    def unlink(self, cursor, uid, ids, context=None):
+        # Remove the file from mongodb
+        self.write(cursor, uid, ids, {'datas': False})
+        return super(IrAttachment, self).unlink(cursor, uid, ids, context)
+
     _columns = {
         'datas_mongo': mongodb_fields.gridfs('Mongo Id')
     }
