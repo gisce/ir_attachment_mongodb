@@ -35,7 +35,7 @@ class IrAttachment(osv.osv):
         res = super(IrAttachment, self).read(cursor, uid, ids, fields, context,
                                              load)
         if isinstance(ids, (list, tuple)):
-            if 'datas' in res[0]:
+            if res and 'datas' in res[0]:
                 for attach in res:
                     if attach['datas_mongo']:
                         unmongoize(attach)
