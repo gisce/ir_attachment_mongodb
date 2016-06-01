@@ -9,5 +9,5 @@ ira_ids = ira.search()
 
 for ira_id in ira_ids:
     datas = ira.read(ira_id, ['datas'])['datas']
-    ira.write(ira_id, {'datas': datas})
+    ira.write([ira_id], {'datas': datas})
 ```
